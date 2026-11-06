@@ -1,50 +1,40 @@
 $(function () {
-	$(document).on('click', '#submit', function () {
-		if ($('#captcha_val').val() !== $('#captcha_text').val()) {
-			$('#captcha_text').parent('div').append('<span class="error">Captch is not match</span>');
-		} else {
-			$("#contactpage").validate({
-				submitHandler: function (e) {
-					submitSignupFormNow($("#contactpage"))
-				},
-				rules: {
-					fname: {
-						required: true
-					},
-					email: {
-						required: true,
-						email: true
-					},
-					phone: {
-						required: true,
-						phone: true
-					}
-				},
-				errorElement: "span",
-				errorPlacement: function (e, t) {
-					e.appendTo(t.parent())
-				}
+	var $form = $("#contactpage");
+
+	$form.validate({
+		rules: {
+			fname: { required: true },
+			email: { required: true, email: true },
+			phone: { required: true, minlength: 7 },
+			service: { required: true },
+			property: { required: true },
+			msg: { required: true }
+		},
+		errorElement: "span",
+		errorPlacement: function (error, element) {
+			error.appendTo(element.parent());
+		},
+		submitHandler: function (form) {
+			var $btn = $("#submit");
+			var $result = $("#form_result");
+			$btn.prop("disabled", true);
+			$.ajax({
+				url: "contact-form.php",
+				type: "POST",
+				data: $(form).serialize(),
+				dataType: "json"
+			}).done(function (res) {
+				var ok = res.status === "Success";
+				$result.html('<span class="alert ' + (ok ? "alert-success" : "alert-danger") + ' d-block"></span>');
+				$result.find("span").text(res.msg);
+				if (ok) { form.reset(); }
+			}).fail(function () {
+				$result.html('<span class="alert alert-danger d-block">Sorry, something went wrong. Please call us at (970) 518-1261.</span>');
+			}).always(function () {
+				$result.show();
+				$btn.prop("disabled", false);
 			});
-			submitSignupFormNow = function (e) {
-				var t = e.serialize();
-				var n = "contact-form.php";
-				$.ajax({
-					url: n,
-					type: "POST",
-					data: t,
-					dataType: "json",
-					success: function (t) {
-						if (t.status === "Success") {
-							$("#form_result").html('<span class="form-success alert alert-success d-block">' + t.msg + "</span>");
-						} else {
-							$("#form_result").html('<span class="form-error alert alert-danger d-block">' + t.msg + "</span>")
-						}
-						$("#form_result").show();
-					}
-				});
-				return false
-			}
+			return false;
 		}
 	});
-
-})
+});

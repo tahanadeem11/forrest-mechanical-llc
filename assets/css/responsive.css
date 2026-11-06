@@ -2430,8 +2430,8 @@
 
     .header-con .navbar-brand img,
     .header-con .navbar-brand figure img {
-        max-height: 100px; /* increase logo size for better visibility */
-        max-width: 280px;
+        max-height: 52px;
+        max-width: 210px;
         height: auto;
         width: auto;
         display: block;
